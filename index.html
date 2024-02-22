@@ -97,6 +97,7 @@
         }
 
         storyOutput.innerHTML = '<p class="animate-pulse">criando uma história ✍️ guentaê...</p>';
+        storyOutput.innerHTML += '<img src="loading.gif" class="mt-5" style="max-width: 300px;">';
         storyOutput.style.height = 'auto';
 
         const apiEndpoint = 'https://api.openai.com/v1/chat/completions';
