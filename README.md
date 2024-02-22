@@ -1,4 +1,4 @@
-# CONTA - Criador Online de Narrativas
+# CONTA - Criador Online de Narrativas através de Tecnologia de Aprendizado
 
 O CONTA usa inteligência artificial para transformar suas fotos em histórias engraçadas. Feito por Pedro Menezes, o projeto usa a tecnologia GPT-4 Vision da OpenAI para olhar uma foto e contar uma história sobre ela. Tudo o que você precisa fazer é enviar uma foto e ter uma chave API da OpenAI.
 
