@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CONTA</title>
+</head>
+<body class="bg-blue-50 flex flex-col items-center pt-20 min-h-screen">
+  <div class="absolute top-4 right-4">
+    <button id="configTrigger" class="px-4 py-2 bg-gray-200 text-black rounded-lg">⚙️</button>
+    <div id="configForm" class="hidden bg-white p-4 rounded-lg shadow">
+      <input type="text" id="apiKeyInput" placeholder="chave da API no openai" class="text-black border border-gray-300 rounded p-2" />
+      <button id="saveApiKey" class="px-4 py-2 bg-blue-500 text-white rounded-lg mb-2">configurar</button>
+      <p>obs: <a href="https://comunidadedeestatistica.com.br/como-criar-uma-chave-token-para-api-do-chatgpt/" class="text-purple-700">veja como gerar</a> no <a href="https://openai.com/" class="text-purple-700">openai</a></p>
+      <p>obs2: sujeito a gastar dinheirinhos 💸</p>
+    </div>    
+  </div>  
+
+  <div class="text-center">
+    <h1 id="projectTitle" class="text-4xl font-bold text-purple-700 cursor-pointer">CONTA*</h1>
+    <div id="acronymExplanation" class="hidden overflow-hidden text-gray-800" style="transition: max-height 0.5s ease-in-out; max-height: 0;">
+      <p><span class="text-purple-700 font-bold">C</span>riador <span class="text-purple-700 font-bold">O</span>nline de <span class="text-purple-700 font-bold">N</span>arrativas através de <span class="text-purple-700 font-bold">T</span>ecnologia de <span class="text-purple-700 font-bold">A</span>prendizado, por <a href="https://pedromenezes.com" target="_blank" class="text-purple-700">pedrin</a></p>
+    </div>
+    
+    <button id="uploadTrigger" class="px-6 py-2 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 mt-8">
+      enviar foto
+    </button>
+    <span class="ml-2 mr-2">ou</span>
+    <a id="exampleTrigger" href="" class="text-green-600 font-semibold">
+      veja um exemplo
+    </a>
+
+    <form id="uploadForm" action="/create-story" method="post" enctype="multipart/form-data" class="hidden">
+      <input type="file" name="photo" id="photo" accept="image/*" class="hidden" required>
+    </form>
+    <div id="storyOutput" class="mt-8 font-medium w-full mx-auto text-left max-w-4xl px-4 py-2 overflow-hidden text-gray-800 leading-relaxed" style="font-size: 20px; line-height: 1.6; height: 0; transition: height 4s ease-in-out;"></div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const configTrigger = document.getElementById('configTrigger');
+      const configForm = document.getElementById('configForm');
+      const apiKeyInput = document.getElementById('apiKeyInput');
+      const saveApiKey = document.getElementById('saveApiKey');
+      const uploadTrigger = document.getElementById('uploadTrigger');
+      const photoInput = document.getElementById('photo');
+      const storyOutput = document.getElementById('storyOutput');
+      const projectTitle = document.getElementById('projectTitle');
+      const exampleTrigger = document.getElementById('exampleTrigger');
+
+      configTrigger.addEventListener('click', toggleConfig);
+      saveApiKey.addEventListener('click', saveApi);
+      uploadTrigger.addEventListener('click', triggerUpload);
+      photoInput.addEventListener('change', handlePhotoChange);
+      projectTitle.addEventListener('click', toggleAcronymExplanation);
+      exampleTrigger.addEventListener('click', showExampleStory);
+
+      function toggleConfig() {
+        const apiKey = localStorage.getItem('openaiApiKey');
+        apiKeyInput.value = apiKey || '';
+        configForm.classList.toggle('hidden');
+        configTrigger.classList.toggle('hidden');
+      }
+
+      function saveApi() {
+        const apiKey = apiKeyInput.value;
+        localStorage.setItem('openaiApiKey', apiKey);
+        configForm.classList.add('hidden');
+        configTrigger.classList.remove('hidden');
+      }
+
+      function triggerUpload() {
+        const apiKey = localStorage.getItem('openaiApiKey');
+        if (!apiKey || apiKey === '') {
+          alert('Por favor, configure a chave da API primeiro.');
+          return;
+        }
+        photoInput.click();
+      }
+
+      function handlePhotoChange(event) {
+        const file = event.target.files[0];
+        resizeImage(file, 300, function(resizedBlob) {
+          const reader = new FileReader();
+          reader.onloadend = function() {
+            createStory(reader.result);
+          };
+          reader.readAsDataURL(resizedBlob);
+        });
+      }
+
+      function createStory(base64Image) {
+        const apiKey = localStorage.getItem('openaiApiKey');
+        if (!apiKey || apiKey === '') {
+          alert('por favor, configure a chave da API primeiro.');
+          return;
+        }
+
+        storyOutput.innerHTML = '<p class="animate-pulse">criando uma história ✍️ guentaê...</p>';
+        storyOutput.style.height = 'auto';
+
+        const apiEndpoint = 'https://api.openai.com/v1/chat/completions';
+
+        const requestData = {
+          model: "gpt-4-vision-preview",
+          messages: [
+            {
+              role: "user",
+              content: [
+                { type: "text", text: "Retorna SOMENTE uma história engraçada de 3 parágrafos com base na imagem" },
+                {
+                  type: "image_url",
+                  image_url: {
+                    "url": base64Image,
+                  },
+                }
+              ],
+            },
+          ],
+          temperature: 0.7,
+          max_tokens: 600,
+          top_p: 1.0,
+          frequency_penalty: 0,
+          presence_penalty: 0
+        };
+
+        fetch(apiEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify(requestData)
+        })
+        .then(response => response.json())
+        .then(data => {
+          const story = data.choices[0].message.content;
+          updateStoryOutput(base64Image, story);
+        })
+        .catch(error => {
+          console.error('erro ao fazer a solicitação para a API:', error);
+          alert('erro ao gerar a história. tente novamente.');
+        });
+      }
+
+      function updateStoryOutput(base64Image, story) {
+        const imageHtml = `<img src="${base64Image}" style="max-width: 300px; display: block; margin: 0 auto; margin-bottom: 20px;">`;
+        const formattedStory = story.split('\n\n').map(p => `<p class="mb-4">${p}</p>`).join('');
+        storyOutput.innerHTML = imageHtml + formattedStory;
+        storyOutput.classList.remove('animate-pulse');
+        adjustStoryOutputHeight();
+      }
+
+      function adjustStoryOutputHeight() {
+        storyOutput.style.height = '0';
+        requestAnimationFrame(() => {
+          const height = storyOutput.scrollHeight + 'px';
+          storyOutput.style.height = height;
+        });
+        storyOutput.addEventListener('transitionend', () => {
+          storyOutput.style.height = null;
+        }, { once: true });
+      }
+
+      function showExampleStory(e) {
+        e.preventDefault();
+        const exampleImage = 'dog.jpg';
+        const exampleStory = "Na pequena cidade de Barksdale, havia um corgi chamado Sir Fluffington que era conhecido por sua alegria contagiante e habilidade de dançar. Não uma dança qualquer, mas um boogie-woogie que faria qualquer pé humano bater no chão ao ritmo. Todos os sábados à tarde, Sir Fluffington saía para o parque central, onde as pedras do caminho se alinhavam como as teclas de um piano gigante.\n\nCerto dia, enquanto a cidade realizava seu festival anual de \"Biscoitos e Lambidas\", Sir Fluffington encontrou-se no meio de uma competição de dança canina. Com um sorriso confiante e a língua de fora, ele sabia que era sua hora de brilhar. Quando a música começou, ele saltou sobre suas patas traseiras e começou a girar, pular e abanar a cauda com tanta energia que até os gatos da vizinhança pararam para assistir.\n\nÀ medida que a multidão se reunia, os aplausos e assobios cresciam. Até o prefeito, que nunca tinha visto um corgi dançarino, ficou tão impressionado que declarou que, a partir daquele dia, Sir Fluffington seria o mascote oficial do festival. E assim, com cada passo de dança, o pequeno corgi não só ganhou a competição, mas também o coração de todos em Barksdale, garantindo sua performance como o grande final para todos os festivais futuros.";
+
+        updateStoryOutput(exampleImage, exampleStory);
+      }
+
+      function toggleAcronymExplanation() {
+        const explanation = document.getElementById('acronymExplanation');
+        explanation.classList.toggle('hidden');
+        explanation.style.maxHeight = explanation.classList.contains('hidden') ? '0' : explanation.scrollHeight + 'px';
+      }
+
+      function resizeImage(file, maxWidth, callback) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = new Image();
+          img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const scale = maxWidth / img.width;
+            canvas.width = maxWidth;
+            canvas.height = img.height * scale;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            canvas.toBlob(function(blob) {
+              callback(blob);
+            }, file.type);
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+</body>
+</html>
