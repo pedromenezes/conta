@@ -4,7 +4,7 @@ O CONTA usa inteligência artificial para transformar suas fotos em histórias e
 
 ## Como Funciona
 
-- **Sem complicação**: Acesse o CONTA, envie uma foto e veja a mágica acontecer.
+- **Sem complicação**: Acesse o [CONTA](https://pedromenezes.com/conta), envie uma foto e veja a mágica acontecer.
 - **Rápido e divertido**: Em segundos, você tem uma história engraçada baseada na sua imagem.
 - **Fácil de compartilhar**: Gostou da história? Compartilhe com amigos ou nas redes sociais!
 
