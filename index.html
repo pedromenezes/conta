@@ -62,6 +62,12 @@
       projectTitle.addEventListener('click', toggleAcronymExplanation);
       exampleTrigger.addEventListener('click', showExampleStory);
 
+      document.addEventListener('click', function(event) {
+        if (!configForm.contains(event.target) && !configForm.classList.contains('hidden') && !configTrigger.contains(event.target)) {
+          toggleConfig();
+        }
+      });
+
       function toggleConfig() {
         const apiKey = localStorage.getItem('openaiApiKey');
         apiKeyInput.value = apiKey || '';
