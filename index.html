@@ -10,9 +10,12 @@
   <div class="absolute top-4 right-4">
     <button id="configTrigger" class="px-4 py-2 bg-gray-200 text-black rounded-lg">⚙️</button>
     <div id="configForm" class="hidden bg-white p-4 rounded-lg shadow">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold text-gray-800">Configurações</h2>
+        <button id="closeConfig" class="ml-auto px-4 py-2 bg-gray-200 text-black rounded-lg">x</button>
+      </div>
       <input type="text" id="apiKeyInput" placeholder="chave da API no openai" class="text-black border border-gray-300 rounded p-2" />
       <button id="saveApiKey" class="px-4 py-2 bg-blue-500 text-white rounded-lg mb-2">salvar</button>
-      <button id="closeConfig" class="px-4 py-2 bg-gray-200 text-black rounded-lg">x</button>
       <p>obs: <a href="https://comunidadedeestatistica.com.br/como-criar-uma-chave-token-para-api-do-chatgpt/" class="text-purple-700">veja como gerar</a> no <a href="https://openai.com/" class="text-purple-700">openai</a></p>
       <p>obs2: sujeito a gastar dinheirinhos 💸</p>
     </div>    
